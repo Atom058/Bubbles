@@ -27,7 +27,10 @@ int lowBatteryLevel = 450; //3.3V with 6 times dilution and 1V external referenc
 
 void setup() {
 
+	//Serial.begin(9600);
+
 	bubbleServo.attach(9);
+	Serial.println("Moving to 90 at start");
 	bubbleServo.write(90);
 	moveDown(); //to avoid any jerky movement
 
@@ -46,13 +49,19 @@ void loop() {
 
 		if( digitalRead(button) == LOW ){
 
+			Serial.println("Button pressed!");
+
 			lastRun = millis();
 			digitalWrite(indicator, HIGH);
 			moveUp();
 			analogWrite(fanControl, 255); //Turn fan full on. Do this after move to save mA.
+
+			Serial.println("Waiting 10 seconds");
+
 			delay(upDelay);
 			analogWrite(fanControl, 127);
 			moveDown();
+
 			delay(downDelay);
 			digitalWrite(indicator, LOW);
 
@@ -66,6 +75,7 @@ void loop() {
 
 	} else{
 
+		Serial.println("Battery level low!");
 		digitalWrite(indicator, HIGH);
 		delay(batteryBlinkDelay);
 		digitalWrite(indicator, LOW);
@@ -84,10 +94,16 @@ void calibrateServo(){
 
 	adjustmentValue = analogRead(adjustmentPin);
 
+	Serial.println("Calibration raw: "); Serial.print(adjustmentValue);
+
 	newDownPosition = 90 - adjustmentValue/94; //Lazy map of 1023 to a 10-grade scale
+
+	Serial.println("Position raw: "); Serial.print(newDownPosition);
 
 	//Check if the calibration value has been updated
 	if(newDownPosition != servoDownPosition){
+
+		Serial.println("Down level updated");
 
 		servoDownPosition = newDownPosition;
 
@@ -101,6 +117,8 @@ void calibrateServo(){
 
 /*Helper method to move servo to down position*/
 void moveDown(){
+
+	Serial.println("Moving down");
 
 	if(currentPosition != servoDownPosition){
 
@@ -135,6 +153,8 @@ void moveDown(){
 
 /*Helper method to move servo to up position*/
 void moveUp(){
+
+	Serial.println("Moving up");
 
 	if(currentPosition != servoUpPosition){
 
