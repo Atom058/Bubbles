@@ -10,9 +10,9 @@ int indicator = LED_BUILTIN; //Pin 13 - connect the indicator LED to this pin!
 
 //Variables
 int adjustmentValue = 0;
-int servoDownPosition = 0;
-int servoUpPosition = 90;
-int currentPosition = 0;
+int servoDownPosition = 90;
+int servoUpPosition = 0;
+int currentPosition = 90;
 int servoDelay = 23; //Approx 2 seconds to bring up or down
 int upDelay = 10000; 
 int downDelay = 1000;
@@ -28,6 +28,8 @@ int lowBatteryLevel = 450; //3.3V with 6 times dilution and 1V external referenc
 void setup() {
 
 	bubbleServo.attach(9);
+	bubbleServo.write(90);
+	moveDown(); //to avoid any jerky movement
 
 	pinMode(fanControl, OUTPUT);
 	pinMode(button, INPUT_PULLUP);
@@ -73,14 +75,16 @@ void loop() {
 
 	checkBattery();
 
-}
+} //Loop
 
+
+/*Helper method to calibrate the down position of the spade*/
 int newDownPosition = 0;
 void calibrateServo(){
 
 	adjustmentValue = analogRead(adjustmentPin);
 
-	newDownPosition = adjustmentValue/94; //Lazy map of 1023 to a 10-grade scale
+	newDownPosition = 90 - adjustmentValue/94; //Lazy map of 1023 to a 10-grade scale
 
 	//Check if the calibration value has been updated
 	if(newDownPosition != servoDownPosition){
@@ -100,21 +104,21 @@ void moveDown(){
 
 	if(currentPosition != servoDownPosition){
 
-		if(currentPosition < servoDownPosition){
+		if(currentPosition > servoDownPosition){
 			//If calibration is under way, and we want to raise the spade
 
-			for(int pos = currentPosition; pos <= servoDownPosition; pos++){
+			for(int pos = currentPosition; pos >= servoDownPosition; pos--){
 
 				bubbleServo.write(pos);
 				delay(servoDelay);
 
 			}
 
-		} else if (currentPosition > servoDownPosition){
+		} else if (currentPosition < servoDownPosition){
 
 			//Normally, we simply bring the spade down
 			
-			for(int pos = currentPosition; pos >= servoDownPosition; pos--){
+			for(int pos = currentPosition; pos <= servoDownPosition; pos++){
 
 				bubbleServo.write(pos);
 				delay(servoDelay);
@@ -134,21 +138,21 @@ void moveUp(){
 
 	if(currentPosition != servoUpPosition){
 
-		if(currentPosition > servoUpPosition){
+		if(currentPosition < servoUpPosition){
 			//Should strictly never happen. But included for posterity. 
 
-			for(int pos = currentPosition; pos >= servoUpPosition; pos--){
+			for(int pos = currentPosition; pos <= servoUpPosition; pos++){
 
 				bubbleServo.write(pos);
 				delay(servoDelay);
 
 			}
 
-		} else if (currentPosition < servoUpPosition){
+		} else if (currentPosition > servoUpPosition){
 
 			//Normally, we simply bring the spade up
 			
-			for(int pos = currentPosition; pos <= servoUpPosition; pos++){
+			for(int pos = currentPosition; pos >= servoUpPosition; pos--){
 
 				bubbleServo.write(pos);
 				delay(servoDelay);
