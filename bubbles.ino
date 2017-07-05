@@ -5,7 +5,7 @@ Servo bubbleServo;
 int fanControl = 3;
 int button = 4;
 int adjustmentPin = A0;
-int batteryPin = A1;
+int batteryPin = A2;
 int indicator = LED_BUILTIN; //Pin 13 - connect the indicator LED to this pin!
 
 //Variables
@@ -15,7 +15,10 @@ int servoUpPosition = 90;
 int currentPosition = 0;
 int servoDelay = 23; //Approx 2 seconds to bring up or down
 int upDelay = 10000; 
+int downDelay = 1000;
 boolean isRunning = false;
+unsigned long lastRun = 0;
+unsigned long fanTimeout = 30000;
 
 int batteryLevel = 0;
 int batteryBlinkDelay = 1000;
@@ -41,14 +44,20 @@ void loop() {
 
 		if( digitalRead(button) == LOW ){
 
+			lastRun = millis();
 			digitalWrite(indicator, HIGH);
-			analogWrite(fanControl, 255); //Turn fan full on
 			moveUp();
+			analogWrite(fanControl, 255); //Turn fan full on. Do this after move to save mA.
 			delay(upDelay);
 			analogWrite(fanControl, 127);
 			moveDown();
+			delay(downDelay);
 			digitalWrite(indicator, LOW);
 
+		}
+
+		if(millis() - lastRun > fanTimeout){
+			analogWrite(fanControl, 0);
 		}
 
 		calibrateServo();
