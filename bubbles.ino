@@ -23,7 +23,7 @@ unsigned long fanTimeout = 30000;
 int batteryLevel = 0;
 int batteryBlinkDelay = 1000;
 boolean batteryLow = false;
-int lowBatteryLevel = 469; //3.3V with 6 times dilution and 1V external reference
+int lowBatteryLevel = 450; //3.3V with 6 times dilution and 1V external reference
 
 void setup() {
 
